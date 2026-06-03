@@ -29,7 +29,6 @@ const refreshTokenSchema = new mongoose.Schema({
 
 // Indexes
 refreshTokenSchema.index({ user: 1 });
-refreshTokenSchema.index({ token: 1 });
 refreshTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 // Virtual to check if token is expired
