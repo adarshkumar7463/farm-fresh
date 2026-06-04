@@ -170,7 +170,14 @@ const BuyerCart = () => {
                   </div>
                   {items.map((item) => (
                     <div key={item._id} className="d-flex align-items-center gap-3 py-3 border-bottom">
-                      <img src={item.product?.primaryImage || 'https://via.placeholder.com/80?text=No+Image'} alt={item.product?.name} className="rounded-3" width="70" height="70" style={{ objectFit: 'cover' }} />
+                      <img
+  src={item.product?.images?.[0]?.url || 'https://via.placeholder.com/80?text=No+Image'}
+  alt={item.product?.name}
+  className="rounded-3"
+  width="70"
+  height="70"
+  style={{ objectFit: 'cover' }}
+/>
                       <div className="flex-grow-1">
                         <div className="fw-bold text-dark">{item.product?.name}</div>
                         <div className="text-muted small">₹{item.product?.effectivePrice || item.product?.price} / {item.product?.unit}</div>

@@ -6,6 +6,49 @@ import { Plus, Edit2, Trash2, Tag, Archive, IndianRupee, Check, X, Upload, Loade
 import Navbar from '../../components/layout/Navbar.jsx';
 import Sidebar from '../../components/layout/Sidebar.jsx';
 
+// Helper: current date parts
+const getCurrentDate = () => {
+  const now = new Date();
+  return {
+    day: now.getDate(),
+    month: now.toLocaleString('default', { month: 'long' }),
+    year: now.getFullYear(),
+    weekday: now.toLocaleString('default', { weekday: 'short' }),
+  };
+};
+
+// Helper: format a date label like "Wednesday, 3 June 2025"
+const formatDateLabel = (dateStr) => {
+  const d = new Date(dateStr);
+  return {
+    weekday: d.toLocaleString('default', { weekday: 'long' }),
+    day: d.getDate(),
+    month: d.toLocaleString('default', { month: 'long' }),
+    year: d.getFullYear(),
+  };
+};
+
+// Helper: get YYYY-MM-DD key from a date string
+const getDateKey = (dateStr) => {
+  const d = new Date(dateStr);
+  return d.toISOString().split('T')[0];
+};
+
+// Helper: group products by their createdAt date
+const groupProductsByDate = (products) => {
+  if (!products?.length) return [];
+  const map = {};
+  const order = [];
+  products.forEach((p) => {
+    const key = p.createdAt ? getDateKey(p.createdAt) : 'unknown';
+    if (!map[key]) { map[key] = []; order.push(key); }
+    map[key].push(p);
+  });
+  // Most recent date first
+  order.sort((a, b) => (a === 'unknown' ? 1 : b === 'unknown' ? -1 : b.localeCompare(a)));
+  return order.map((key) => ({ dateKey: key, products: map[key] }));
+};
+
 const SupplierInventory = () => {
   const queryClient = useQueryClient();
   const [showAddModal, setShowAddModal] = useState(false);
@@ -24,6 +67,8 @@ const SupplierInventory = () => {
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [imageFiles, setImageFiles] = useState([]);
+
+  const today = getCurrentDate();
 
   // Seeder handlers
   const handleOpenBulkAdd = () => {
@@ -45,9 +90,7 @@ const SupplierInventory = () => {
 
   const handleCloseBulkAdd = () => {
     bulkProducts.forEach(p => {
-      if (p.imagePreview) {
-        URL.revokeObjectURL(p.imagePreview);
-      }
+      if (p.imagePreview) URL.revokeObjectURL(p.imagePreview);
     });
     setShowBulkAdd(false);
     setBulkProducts([]);
@@ -71,31 +114,18 @@ const SupplierInventory = () => {
   };
 
   const handleRemoveBulkRow = (id) => {
-    if (bulkProducts.length === 1) {
-      // Keep at least one product row - button is effectively a no-op
-      return;
-    }
+    if (bulkProducts.length === 1) return;
     setBulkProducts(prev => prev.filter(p => p.id !== id));
   };
 
   const handleBulkRowChange = (id, field, value) => {
-    setBulkProducts(prev => prev.map(p => {
-      if (p.id === id) {
-        return { ...p, [field]: value };
-      }
-      return p;
-    }));
+    setBulkProducts(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
   };
 
   const handleBulkImageChange = (id, file) => {
     if (!file) return;
     const previewUrl = URL.createObjectURL(file);
-    setBulkProducts(prev => prev.map(p => {
-      if (p.id === id) {
-        return { ...p, images: file, imagePreview: previewUrl };
-      }
-      return p;
-    }));
+    setBulkProducts(prev => prev.map(p => p.id === id ? { ...p, images: file, imagePreview: previewUrl } : p));
   };
 
   const handleSaveAll = async () => {
@@ -111,13 +141,7 @@ const SupplierInventory = () => {
       return;
     }
 
-    setSaveProgress({
-      saving: true,
-      total: bulkProducts.length,
-      current: 0,
-      status: 'saving',
-      errors: []
-    });
+    setSaveProgress({ saving: true, total: bulkProducts.length, current: 0, status: 'saving', errors: [] });
 
     const errors = [];
     for (let i = 0; i < bulkProducts.length; i++) {
@@ -132,15 +156,10 @@ const SupplierInventory = () => {
       formData.append('description', product.description.trim());
       formData.append('stock[quantity]', product.stock);
       formData.append('stock[trackInventory]', 'true');
-
-      if (product.images) {
-        formData.append('images', product.images);
-      }
+      if (product.images) formData.append('images', product.images);
 
       try {
-        await api.post('/products', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        await api.post('/products', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       } catch (err) {
         const errorMsg = err.response?.data?.message || `Failed to save "${product.name || 'Row ' + (i + 1)}"`;
         errors.push(errorMsg);
@@ -148,22 +167,11 @@ const SupplierInventory = () => {
     }
 
     if (errors.length > 0) {
-      setSaveProgress(prev => ({
-        ...prev,
-        status: 'error',
-        errors: errors
-      }));
+      setSaveProgress(prev => ({ ...prev, status: 'error', errors }));
     } else {
-      setSaveProgress(prev => ({
-        ...prev,
-        status: 'completed'
-      }));
+      setSaveProgress(prev => ({ ...prev, status: 'completed' }));
       queryClient.invalidateQueries(['supplierProducts']);
-      setTimeout(() => {
-        setShowBulkAdd(false);
-        setBulkProducts([]);
-        setSaveProgress(null);
-      }, 1500);
+      setTimeout(() => { setShowBulkAdd(false); setBulkProducts([]); setSaveProgress(null); }, 1500);
     }
   };
 
@@ -176,7 +184,7 @@ const SupplierInventory = () => {
     },
   });
 
-  // Fetch Categories from API
+  // Fetch Categories
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
@@ -187,51 +195,23 @@ const SupplierInventory = () => {
 
   // Add Product Mutation
   const addMutation = useMutation({
-    mutationFn: async (formData) => {
-      return api.post('/products', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['supplierProducts']);
-      setShowAddModal(false);
-      resetForm();
-    },
+    mutationFn: async (formData) => api.post('/products', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+    onSuccess: () => { queryClient.invalidateQueries(['supplierProducts']); setShowAddModal(false); resetForm(); },
   });
 
   // Update Product Mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, formData }) => {
-      return api.put(`/products/${id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['supplierProducts']);
-      setEditingProduct(null);
-      resetForm();
-    },
+    mutationFn: async ({ id, formData }) => api.put(`/products/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+    onSuccess: () => { queryClient.invalidateQueries(['supplierProducts']); setEditingProduct(null); resetForm(); },
   });
 
   // Delete Product Mutation
   const deleteMutation = useMutation({
-    mutationFn: async (id) => {
-      return api.delete(`/products/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['supplierProducts']);
-    },
+    mutationFn: async (id) => api.delete(`/products/${id}`),
+    onSuccess: () => { queryClient.invalidateQueries(['supplierProducts']); },
   });
 
-  const resetForm = () => {
-    setName('');
-    setPrice('');
-    setStock('');
-    setUnit('kg');
-    setCategory('');
-    setDescription('');
-    setImageFiles([]);
-  };
+  const resetForm = () => { setName(''); setPrice(''); setStock(''); setUnit('kg'); setCategory(''); setDescription(''); setImageFiles([]); };
 
   const handleEditClick = (product) => {
     setEditingProduct(product);
@@ -253,13 +233,9 @@ const SupplierInventory = () => {
     formData.append('description', description);
     formData.append('stock[quantity]', stock);
     formData.append('stock[trackInventory]', 'true');
-
     if (imageFiles.length > 0) {
-      for (const file of imageFiles) {
-        formData.append('images', file);
-      }
+      for (const file of imageFiles) formData.append('images', file);
     }
-
     if (editingProduct) {
       updateMutation.mutate({ id: editingProduct._id, formData });
     } else {
@@ -285,67 +261,129 @@ const SupplierInventory = () => {
             <div className="text-center py-5">
               <div className="spinner-border text-success" role="status"></div>
             </div>
+          ) : productData?.length === 0 ? (
+            <div className="card-farm p-5 text-center text-muted">
+              No products found in inventory
+            </div>
           ) : (
-            <div className="card-farm p-3">
-              <div className="table-responsive">
-                <table className="table table-hover align-middle mb-0" style={{ fontSize: '14px' }}>
-                  <thead>
-                    <tr>
-                      <th>Product Image</th>
-                      <th>Product Name</th>
-                      <th>Category</th>
-                      <th>Unit Price</th>
-                      <th>Stock Quantity</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {productData?.length === 0 ? (
-                      <tr>
-                        <td colSpan="7" className="text-center text-muted">No products found in inventory</td>
-                      </tr>
-                    ) : (
-                      productData?.map((product) => (
-                        <tr key={product._id}>
-                          <td>
-                            <img
-                              src={product.primaryImage || 'https://via.placeholder.com/80?text=No+Image'}
-                              alt={product.name}
-                              className="rounded-3"
-                              width="50"
-                              height="50"
-                              style={{ objectFit: 'cover' }}
-                            />
-                          </td>
-                          <td className="fw-semibold">{product.name}</td>
-                          <td>{product.category?.name || 'Produce'}</td>
-                          <td>₹{product.price} / {product.unit}</td>
-                          <td>{product.stock?.quantity} {product.unit}</td>
-                          <td>
-                            <span className={`badge ${product.stock?.quantity > 10 ? 'bg-success' : 'bg-warning text-dark'}`}>
-                              {(product.stockStatus || 'in_stock').replace(/_/g, ' ')}
+            <div className="d-flex flex-column gap-4">
+              {groupProductsByDate(productData).map(({ dateKey, products: group }) => {
+                const label = dateKey !== 'unknown' ? formatDateLabel(dateKey) : null;
+                return (
+                  <div key={dateKey}>
+
+                    {/* ── Date Header ── */}
+                    <div className="d-flex align-items-center gap-3 mb-3">
+                      {label ? (
+                        <>
+                          {/* Day block */}
+                          <div
+                            className="d-flex flex-column align-items-center justify-content-center"
+                            style={{
+                              width: '52px',
+                              height: '52px',
+                              background: 'var(--primary-green)',
+                              borderRadius: '12px',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <span style={{ fontSize: '20px', fontWeight: 800, color: '#fff', lineHeight: 1 }}>
+                              {label.day}
                             </span>
-                          </td>
-                          <td>
-                            <div className="d-flex gap-2">
-                              <button className="btn btn-outline-success btn-sm" onClick={() => handleEditClick(product)}>
-                                <Edit2 size={14} />
-                              </button>
-                              <button className="btn btn-outline-danger btn-sm" onClick={() => deleteMutation.mutate(product._id)}>
-                                <Trash2 size={14} />
-                              </button>
+                            <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                              {label.month.slice(0, 3)}
+                            </span>
+                          </div>
+
+                          {/* Weekday + full date text */}
+                          <div style={{ lineHeight: 1.35 }}>
+                            <div style={{ fontSize: '15px', fontWeight: 700, color: '#2d3a2d' }}>
+                              {label.weekday}
                             </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                            <div style={{ fontSize: '12px', color: '#8a9b8a', fontWeight: 500 }}>
+                              {label.day} {label.month} {label.year}
+                              <span
+                                className="ms-2 px-2 py-0"
+                                style={{
+                                  background: 'rgba(74,124,89,0.1)',
+                                  color: 'var(--primary-green)',
+                                  borderRadius: '20px',
+                                  fontSize: '11px',
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {group.length} {group.length === 1 ? 'product' : 'products'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Horizontal rule */}
+                          <div style={{ flex: 1, height: '1px', background: 'rgba(74,124,89,0.15)' }} />
+                        </>
+                      ) : (
+                        <div style={{ fontSize: '13px', color: '#aaa', fontStyle: 'italic' }}>Date unknown</div>
+                      )}
+                    </div>
+
+                    {/* ── Products Table for this date group ── */}
+                    <div className="card-farm p-3">
+                      <div className="table-responsive">
+                        <table className="table table-hover align-middle mb-0" style={{ fontSize: '14px' }}>
+                          <thead>
+                            <tr>
+                              <th>Product Image</th>
+                              <th>Product Name</th>
+                              <th>Category</th>
+                              <th>Unit Price</th>
+                              <th>Stock Quantity</th>
+                              <th>Status</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {group.map((product) => (
+                              <tr key={product._id}>
+                                <td>
+                                  <img
+  src={product.images?.[0]?.url || 'https://via.placeholder.com/80?text=No+Image'}
+  alt={product.name}
+  className="rounded-3"
+  width="50"
+  height="50"
+  style={{ objectFit: 'cover' }}
+/>
+                                </td>
+                                <td className="fw-semibold">{product.name}</td>
+                                <td>{product.category?.name || 'Produce'}</td>
+                                <td>₹{product.price} / {product.unit}</td>
+                                <td>{product.stock?.quantity} {product.unit}</td>
+                                <td>
+                                  <span className={`badge ${product.stock?.quantity > 10 ? 'bg-success' : 'bg-warning text-dark'}`}>
+                                    {(product.stockStatus || 'in_stock').replace(/_/g, ' ')}
+                                  </span>
+                                </td>
+                                <td>
+                                  <div className="d-flex gap-2">
+                                    <button className="btn btn-outline-success btn-sm" onClick={() => handleEditClick(product)}>
+                                      <Edit2 size={14} />
+                                    </button>
+                                    <button className="btn btn-outline-danger btn-sm" onClick={() => deleteMutation.mutate(product._id)}>
+                                      <Trash2 size={14} />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                  </div>
+                );
+              })}
             </div>
           )}
-
         </div>
 
         {/* Add / Edit Modal Overlay */}
@@ -364,7 +402,6 @@ const SupplierInventory = () => {
                     <label className="form-label text-dark fw-semibold">Product Name</label>
                     <input type="text" className="form-control" placeholder="e.g. Tomatoes" value={name} onChange={(e) => setName(e.target.value)} required />
                   </div>
-
                   <div className="row g-3 mb-3">
                     <div className="col-sm-6">
                       <label className="form-label text-dark fw-semibold">Price (₹)</label>
@@ -380,7 +417,6 @@ const SupplierInventory = () => {
                       </select>
                     </div>
                   </div>
-
                   <div className="row g-3 mb-3">
                     <div className="col-sm-6">
                       <label className="form-label text-dark fw-semibold">Category</label>
@@ -395,24 +431,17 @@ const SupplierInventory = () => {
                       <input type="number" className="form-control" placeholder="100" value={stock} onChange={(e) => setStock(e.target.value)} required />
                     </div>
                   </div>
-
                   <div className="mb-3">
                     <label className="form-label text-dark fw-semibold">Description</label>
                     <textarea className="form-control" rows="3" placeholder="Fresh organic quality..." value={description} onChange={(e) => setDescription(e.target.value)}></textarea>
                   </div>
-
                   <div className="mb-4">
                     <label className="form-label text-dark fw-semibold">Product Images</label>
                     <input type="file" className="form-control" multiple accept="image/*" onChange={(e) => setImageFiles(Array.from(e.target.files))} />
                   </div>
-
                   <div className="d-flex justify-content-end gap-2">
-                    <button type="button" className="btn btn-light" onClick={() => { setShowAddModal(false); setEditingProduct(null); }}>
-                      Cancel
-                    </button>
-                    <button type="submit" className="btn btn-primary-farm">
-                      Save Changes
-                    </button>
+                    <button type="button" className="btn btn-light" onClick={() => { setShowAddModal(false); setEditingProduct(null); }}>Cancel</button>
+                    <button type="submit" className="btn btn-primary-farm">Save Changes</button>
                   </div>
                 </form>
               </div>
@@ -424,8 +453,11 @@ const SupplierInventory = () => {
         {/* Full-Screen Bulk Product Creation Workspace */}
         {showBulkAdd && createPortal(
           <div className="bulk-add-overlay">
-            {/* Header */}
+
+            {/* ─── Header ─── */}
             <div className="bulk-add-header d-flex justify-content-between align-items-center">
+
+              {/* Left: title + subtitle */}
               <div>
                 <h4 className="fw-bold mb-1" style={{ color: 'var(--primary-green)' }}>
                   <Plus size={22} className="me-2" style={{ verticalAlign: '-3px' }} />
@@ -435,10 +467,74 @@ const SupplierInventory = () => {
                   Fill in the details for each product below. You can add multiple products at once.
                 </p>
               </div>
+
+              {/* Right: date pill + product count + close */}
               <div className="d-flex align-items-center gap-3">
-                <span className="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill" style={{ fontSize: '14px' }}>
+
+                {/* ✅ Date Display */}
+                <div
+                  className="d-flex align-items-center gap-2 px-3 py-2"
+                  style={{
+                    background: 'rgba(74,124,89,0.07)',
+                    border: '1px solid rgba(74,124,89,0.18)',
+                    borderRadius: '12px',
+                  }}
+                >
+                  {/* Day number — large */}
+                  <span
+                    style={{
+                      fontSize: '26px',
+                      fontWeight: 700,
+                      color: 'var(--primary-green)',
+                      lineHeight: 1,
+                    }}
+                  >
+                    {today.day}
+                  </span>
+
+                  {/* Divider */}
+                  <div
+                    style={{
+                      width: '1px',
+                      height: '28px',
+                      background: 'rgba(74,124,89,0.2)',
+                    }}
+                  />
+
+                  {/* Month + Year stacked */}
+                  <div style={{ lineHeight: 1.3 }}>
+                    <div
+                      style={{
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        color: 'var(--primary-green)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.06em',
+                      }}
+                    >
+                      {today.month}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '11px',
+                        color: '#8a9b8a',
+                        fontWeight: 500,
+                      }}
+                    >
+                      {today.year}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Product count badge */}
+                <span
+                  className="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill"
+                  style={{ fontSize: '14px' }}
+                >
                   {bulkProducts.length} {bulkProducts.length === 1 ? 'Product' : 'Products'}
                 </span>
+
+                {/* Close button */}
                 <button
                   className="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
                   style={{ width: '38px', height: '38px' }}
@@ -450,7 +546,7 @@ const SupplierInventory = () => {
               </div>
             </div>
 
-            {/* Content */}
+            {/* ─── Content ─── */}
             <div className="bulk-add-content">
               <div className="bulk-table-card">
                 <div className="table-responsive">
@@ -585,7 +681,7 @@ const SupplierInventory = () => {
               </div>
             </div>
 
-            {/* Sticky Footer Action Bar */}
+            {/* ─── Sticky Footer ─── */}
             <div className="bulk-add-footer">
               <div className="text-muted" style={{ fontSize: '14px' }}>
                 <Archive size={16} className="me-1" style={{ verticalAlign: '-2px' }} />
@@ -605,7 +701,7 @@ const SupplierInventory = () => {
               </div>
             </div>
 
-            {/* Progress Overlay */}
+            {/* ─── Progress Overlay ─── */}
             {saveProgress && createPortal(
               <div className="progress-overlay-backdrop">
                 <div className="progress-card text-center">
@@ -648,10 +744,7 @@ const SupplierInventory = () => {
                           </div>
                         ))}
                       </div>
-                      <button
-                        className="btn btn-primary-farm"
-                        onClick={() => setSaveProgress(null)}
-                      >
+                      <button className="btn btn-primary-farm" onClick={() => setSaveProgress(null)}>
                         Dismiss
                       </button>
                     </>
