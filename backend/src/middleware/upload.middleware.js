@@ -50,11 +50,13 @@ export const uploadProductImages = multer({
   fileFilter: imageFileFilter,
 }).array('images', 5);
 
+
 export const uploadBulkFile = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
   fileFilter: csvExcelFileFilter,
 }).single('file');
+
 
 export const handleMulterError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
@@ -68,3 +70,6 @@ export const handleMulterError = (err, req, res, next) => {
   }
   next(err);
 };
+
+
+
