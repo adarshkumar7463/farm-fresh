@@ -68,13 +68,13 @@ const BuyerMarketplace = () => {
             <h2 className="fw-bold mb-0">Fresh Produce Marketplace</h2>
             <div className="d-flex gap-2 w-100" style={{ maxWidth: '500px' }}>
               <div className="input-group">
-                <span className="input-group-text bg-white border-end-0 text-success">
+                {/* <span className="input-group-text bg-white border-end-0 text-success">
                   <Search size={18} />
-                </span>
+                </span> */}
                 <input
                   type="text"
                   className="form-control border-start-0 ps-0"
-                  placeholder="Search fresh fruits & vegetables..."
+                  placeholder=" Search fresh fruits & vegetables..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -97,14 +97,40 @@ const BuyerMarketplace = () => {
               <div className="row g-3">
                 {dashboardData.recommendations.map((p) => (
                   <div key={p._id} className="col-md-2 col-sm-4 col-6">
-                    <div className="card-farm h-100 p-2 bg-white text-center">
-                      <img src={p.primaryImage || 'https://via.placeholder.com/80?text=Fresh'} className="rounded-3 mb-2" style={{ width: '100%', height: '80px', objectFit: 'cover' }} alt={p.name} />
-                      <div className="fw-bold text-dark text-truncate small" style={{ fontSize: '13px' }}>{p.name}</div>
-                      <div className="text-success fw-bold small">₹{p.price} / {p.unit}</div>
-                      <button className="btn btn-primary-farm btn-sm w-100 py-1 mt-2" style={{ fontSize: '11px' }} onClick={() => handleAddToCart(p._id)}>
-                        Add
-                      </button>
-                    </div>
+                    <div
+  className="card-farm"
+  style={{
+    position: 'relative',
+    borderRadius: '18px',
+    padding: '14px 12px 12px',
+    textAlign: 'center',
+    overflow: 'hidden',
+    background: 'rgba(30, 180, 110, 0.10)',
+    border: '1px solid rgba(60, 200, 120, 0.28)',
+    backdropFilter: 'blur(14px) saturate(1.4)',
+    WebkitBackdropFilter: 'blur(14px) saturate(1.4)',
+    boxShadow: '0 2px 16px rgba(30,160,90,0.10), inset 0 1px 0 rgba(255,255,255,0.18)',
+    transition: 'transform 0.22s cubic-bezier(.34,1.56,.64,1)',
+  }}
+>
+  <img
+    src={p.images?.[0]?.url|| 'https://via.placeholder.com/80?text=Fresh'}
+    style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '12px', marginBottom: '10px', border: '1px solid rgba(60,200,120,0.18)' }}
+    alt={p.name}
+  />
+  <div style={{ fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--color-text-primary)', marginBottom: '3px' }}>
+    {p.name}
+  </div>
+  <div style={{ fontSize: '12px', fontWeight: 500, color: '#1ca865', marginBottom: '10px' }}>
+    ₹{p.price} / {p.unit}
+  </div>
+  <button
+    style={{ width: '100%', background: 'rgba(28,168,101,0.82)', color: '#fff', fontSize: '12px', fontWeight: 600, padding: '7px 0', borderRadius: '10px', border: 'none', cursor: 'pointer', boxShadow: '0 1px 6px rgba(28,168,101,0.22), inset 0 1px 0 rgba(255,255,255,0.18)' }}
+    onClick={() => handleAddToCart(p._id)}
+  >
+    + Add
+  </button>
+</div>
                   </div>
                 ))}
               </div>
@@ -126,8 +152,8 @@ const BuyerMarketplace = () => {
                     <div className="card-farm h-100 d-flex flex-column justify-content-between p-3">
                       <div>
                         <div className="position-relative mb-3">
-                          <img
-                            src={p.primaryImage || 'https://via.placeholder.com/150?text=Produce'}
+                          <img 
+                            src={p.images?.[0]?.url || 'https://via.placeholder.com/150?text=Produce'}
                             alt={p.name}
                             className="rounded-3 w-100"
                             style={{ height: '160px', objectFit: 'cover' }}
@@ -138,7 +164,7 @@ const BuyerMarketplace = () => {
                             </span>
                           )}
                         </div>
-                        <div className="fw-bold text-dark fs-5 mb-1">{p.name}</div>
+                        <div className="fw-bold  fs-5 mb-1">{p.name}</div>
                         <div className="text-muted small mb-2">{p.category?.name || 'Produce'}</div>
                         <p className="text-muted text-truncate mb-3" style={{ fontSize: '13px' }}>{p.description || 'Premium quality produce directly from local farms.'}</p>
                       </div>

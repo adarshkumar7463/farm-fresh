@@ -45,7 +45,7 @@ const Login = () => {
           <div className="gradient-bg text-white rounded-circle d-inline-flex p-3 mb-3">
             <Leaf size={32} />
           </div>
-          <h2 className="fw-bold text-dark">Welcome Back</h2>
+          <h2 className="fw-bold ">Welcome Back</h2>
           <p className="text-muted">Sign in to manage your orders & inventory</p>
         </div>
 
@@ -57,7 +57,7 @@ const Login = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="form-label text-dark fw-semibold">Email Address</label>
+            <label className="form-label  fw-semibold">Email Address</label>
             <div className="input-group">
               <span className="input-group-text bg-transparent border-end-0 text-success">
                 <Mail size={18} />
@@ -74,7 +74,7 @@ const Login = () => {
           </div>
 
           <div className="mb-3">
-            <label className="form-label text-dark fw-semibold">Password</label>
+            <label className="form-label  fw-semibold">Password</label>
             <div className="input-group">
               <span className="input-group-text bg-transparent border-end-0 text-success">
                 <Lock size={18} />
@@ -124,7 +124,7 @@ const Login = () => {
           onClick={handleGoogleLogin} 
           className="btn btn-light border w-100 py-2.5 rounded-3 d-flex align-items-center justify-content-center gap-2 mb-4 fw-semibold"
         >
-          <img src="https://docs.microsoft.com/en-us/azure/active-directory/develop/media/howto-add-branding-in-azure-ad-apps/google-logo.svg" alt="Google logo" width="18" height="18" />
+          <img src="https://w1.pngwing.com/pngs/209/923/png-transparent-google-logo-g-suite-google-pay-google-doodle-text-circle-line-area-thumbnail.png" alt="Google logo" width="18" height="18" />
           Continue with Google
         </button>
 

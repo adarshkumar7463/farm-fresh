@@ -12,24 +12,37 @@ cloudinary.config({
  */
 export const uploadToCloudinary = (fileBuffer, folder = 'general') => {
   return new Promise((resolve, reject) => {
-    if (!process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME === 'your-cloud-name') {
-      logger.warn('Cloudinary not configured. Skipping upload.');
-      return resolve({
-        secure_url: 'https://via.placeholder.com/150?text=No+Image',
-        public_id: `dummy_${Date.now()}`
-      });
-    }
+// console.log("Cloud Name:", process.env.CLOUDINARY_CLOUD_NAME);
+// console.log("API Key:", process.env.CLOUDINARY_API_KEY);
+// console.log("API Secret:", process.env.CLOUDINARY_API_SECRET);
+    if (
+  !process.env.CLOUDINARY_CLOUD_NAME ||
+  !process.env.CLOUDINARY_API_KEY ||
+  !process.env.CLOUDINARY_API_SECRET
+) {
+  logger.warn('Cloudinary not configured. Skipping upload.');
+  return resolve({
+    secure_url: 'https://via.placeholder.com/150?text=No+Image',
+    public_id: `dummy_${Date.now()}`
+  });
+}
 
     const uploadStream = cloudinary.uploader.upload_stream(
-      { folder },
-      (error, result) => {
-        if (error) {
-          logger.error('Cloudinary upload error:', error);
-          return reject(error);
-        }
-        resolve(result);
-      }
-    );
+  {
+    folder,
+    resource_type: 'auto'
+  },
+  (error, result) => {
+    if (error) {
+      console.error('Cloudinary Upload Error:', error);
+      return reject(error);
+    }
+
+    console.log('Cloudinary Upload Success:', result);
+
+    resolve(result);
+  }
+);
     uploadStream.end(fileBuffer);
   });
 };

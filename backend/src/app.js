@@ -15,62 +15,113 @@ import routes from './routes/index.js';
 
 const app = express();
 
-// Trust proxy for rate limiting behind reverse proxies
+/**
+ * Trust Render/Proxy
+ */
 app.set('trust proxy', 1);
 
-// Security headers
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' },
-}));
+/**
+ * Security Headers
+ */
+app.use(
+  helmet({
+    crossOriginResourcePolicy: {
+      policy: 'cross-origin',
+    },
+  })
+);
 
-// CORS configuration
-app.use(cors({
-  origin: process.env.CLIENT_URL,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+/**
+ * CORS Configuration
+ */
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || '*',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
-// Body parsing
+/**
+ * Body Parsers
+ */
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// Data sanitization against NoSQL injection
+/**
+ * Security Middleware
+ */
 app.use(mongoSanitize());
 
-// Prevent HTTP parameter pollution
-app.use(hpp({
-  whitelist: ['price', 'category', 'sort', 'page', 'limit'],
-}));
+app.use(
+  hpp({
+    whitelist: ['price', 'category', 'sort', 'page', 'limit'],
+  })
+);
 
-// Compression
+/**
+ * Compression
+ */
 app.use(compression());
 
-// Logging
-if (process.env.NODE_ENV === 'development') {
+/**
+ * Request Logging
+ */
+if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-// Rate limiting
+/**
+ * Rate Limiting
+ */
 app.use('/api', globalRateLimiter);
 
-// Passport initialization
+/**
+ * Passport Authentication
+ */
 configurePassport(passport);
 app.use(passport.initialize());
 
-// Health check
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+/**
+ * Root Route
+ * Prevents Render from showing 404 on "/"
+ */
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Farm Flow API is running successfully 🚀',
+    environment: process.env.NODE_ENV,
+    healthCheck: '/health',
+    apiBaseUrl: '/api/v1',
+  });
 });
 
-// API routes
+/**
+ * Health Check Route
+ */
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+/**
+ * API Routes
+ */
 app.use('/api/v1', routes);
 
-// 404 handler
+/**
+ * 404 Handler
+ */
 app.use(notFound);
 
-// Global error handler
+/**
+ * Global Error Handler
+ */
 app.use(errorHandler);
 
 export default app;
