@@ -297,9 +297,15 @@ const SupplierInventory = () => {
 
                           {/* Weekday + full date text */}
                           <div style={{ lineHeight: 1.35 }}>
-                            <div style={{ fontSize: '15px', fontWeight: 700, color: '#2d3a2d' }}>
-                              {label.weekday}
-                            </div>
+                            <div
+  style={{
+    fontSize: '15px',
+    fontWeight: 700,
+    color: 'var(--text-dark)',
+  }}
+>
+  {label.weekday}
+</div>
                             <div style={{ fontSize: '12px', color: '#8a9b8a', fontWeight: 500 }}>
                               {label.day} {label.month} {label.year}
                               <span

@@ -79,15 +79,45 @@ const Sidebar = () => {
         </NavLink>
       </div>
 
-      <div className="mt-auto pt-3 border-top w-100 bg-white">
-        <button
-          onClick={handleLogout}
-          className="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 py-2.5 rounded-3 fw-bold border-0 bg-transparent transition-all hover:bg-danger-subtle text-danger text-start"
-        >
-          <LogOut size={20} />
-          Log Out
-        </button>
-      </div>
+      <button
+  onClick={handleLogout}
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    width: '100%',
+    padding: '10px 16px',
+    borderRadius: '12px',
+    border: '1px solid rgba(220, 53, 69, 0.35)',
+    background: 'rgba(220, 53, 69, 0.08)',
+    color: '#dc3545',
+    fontSize: '14px',
+    fontWeight: 600,
+    cursor: 'pointer',
+    outline: 'none',
+    transition: 'background 0.18s ease, border-color 0.18s ease',
+  }}
+  onMouseEnter={e => {
+    e.currentTarget.style.background = 'rgba(220, 53, 69, 0.15)';
+    e.currentTarget.style.borderColor = 'rgba(220, 53, 69, 0.55)';
+  }}
+  onMouseLeave={e => {
+    e.currentTarget.style.background = 'rgba(220, 53, 69, 0.08)';
+    e.currentTarget.style.borderColor = 'rgba(220, 53, 69, 0.35)';
+  }}
+>
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2"
+    strokeLinecap="round" strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+    <polyline points="16 17 21 12 16 7"/>
+    <line x1="21" y1="12" x2="9" y2="12"/>
+  </svg>
+  Log Out
+</button>
     </div>
   );
 };

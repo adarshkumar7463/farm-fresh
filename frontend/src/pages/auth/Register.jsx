@@ -153,7 +153,7 @@ const Register = () => {
           <div className="gradient-bg text-white rounded-circle d-inline-flex p-3 mb-3">
             <Leaf size={32} />
           </div>
-          <h2 className="fw-bold text-dark">Join FarmFlow</h2>
+          <h2 className="fw-bold ">Join FarmFlow</h2>
           <p className="text-muted">Register as a supplier or buyer to trade fresh produce</p>
         </div>
 
@@ -178,7 +178,7 @@ const Register = () => {
             <div className="col">
               <button
                 type="button"
-                className={`btn w-100 py-2.5 rounded-3 fw-bold transition-all ${role === 'supplier' ? 'btn-primary-farm' : 'btn-light border text-muted'}`}
+                className={`btn w-100 py-2.5 rounded-3 fw-bold  transition-all ${role === 'supplier' ? 'btn-primary-farm' : 'btn-light border text-muted'}`}
                 onClick={() => setRole('supplier')}
               >
                 I am a Supplier
@@ -188,7 +188,7 @@ const Register = () => {
 
           <div className="row g-3 mb-3">
             <div className="col-sm-6">
-              <label className="form-label text-dark fw-semibold">First Name</label>
+              <label className="form-label  fw-semibold">First Name</label>
               <div className="input-group">
                 <span className="input-group-text bg-transparent border-end-0 text-success">
                   <User size={18} />
@@ -205,7 +205,7 @@ const Register = () => {
               {getFieldError('firstName') && <div className="text-danger small mt-1">{getFieldError('firstName')}</div>}
             </div>
             <div className="col-sm-6">
-              <label className="form-label text-dark fw-semibold">Last Name</label>
+              <label className="form-label  fw-semibold">Last Name</label>
               <div className="input-group">
                 <span className="input-group-text bg-transparent border-end-0 text-success">
                   <User size={18} />
@@ -224,7 +224,7 @@ const Register = () => {
           </div>
 
           <div className="mb-3">
-            <label className="form-label text-dark fw-semibold">Email Address</label>
+            <label className="form-label  fw-semibold">Email Address</label>
             <div className="input-group">
               <span className="input-group-text bg-transparent border-end-0 text-success">
                 <Mail size={18} />
@@ -242,7 +242,7 @@ const Register = () => {
           </div>
 
           <div className="mb-3">
-            <label className="form-label text-dark fw-semibold">Phone Number</label>
+            <label className="form-label  fw-semibold">Phone Number</label>
             <div className="input-group">
               <span className="input-group-text bg-transparent border-end-0 text-success">
                 <Phone size={18} />
@@ -266,7 +266,7 @@ const Register = () => {
             </h5>
             <div className="row g-3">
               <div className="col-md-6">
-                <label className="form-label text-dark fw-semibold">Business Name</label>
+                <label className="form-label  fw-semibold">Business Name</label>
                 <input
                   type="text"
                   className={`form-control ${getFieldError('businessName') ? 'is-invalid' : ''}`}
@@ -279,7 +279,7 @@ const Register = () => {
               </div>
               {role === 'buyer' ? (
                 <div className="col-md-6">
-                  <label className="form-label text-dark fw-semibold">Business Type</label>
+                  <label className="form-label  fw-semibold">Business Type</label>
                   <select
                     className="form-select"
                     value={businessType}
@@ -294,7 +294,7 @@ const Register = () => {
                 </div>
               ) : (
                 <div className="col-md-6">
-                  <label className="form-label text-dark fw-semibold">GST Number (Optional)</label>
+                  <label className="form-label  fw-semibold">GST Number (Optional)</label>
                   <input
                     type="text"
                     className={`form-control ${getFieldError('gstNumber') ? 'is-invalid' : ''}`}
@@ -310,7 +310,7 @@ const Register = () => {
 
           <div className="row g-3 mb-4">
             <div className="col-sm-6">
-              <label className="form-label text-dark fw-semibold">Password</label>
+              <label className="form-label  fw-semibold">Password</label>
               <div className="input-group">
                 <span className="input-group-text bg-transparent border-end-0 text-success">
                   <Lock size={18} />
@@ -327,7 +327,7 @@ const Register = () => {
               {getFieldError('password') && <div className="text-danger small mt-1">{getFieldError('password')}</div>}
             </div>
             <div className="col-sm-6">
-              <label className="form-label text-dark fw-semibold">Confirm Password</label>
+              <label className="form-label  fw-semibold">Confirm Password</label>
               <div className="input-group">
                 <span className="input-group-text bg-transparent border-end-0 text-success">
                   <Lock size={18} />

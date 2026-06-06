@@ -56,7 +56,7 @@ const VerifyOTP = () => {
           <div className="gradient-bg text-white rounded-circle d-inline-flex p-3 mb-3">
             <Leaf size={32} />
           </div>
-          <h2 className="fw-bold text-dark">Verify Email</h2>
+          <h2 className="fw-bold ">Verify Email</h2>
           <p className="text-muted">Enter the 6-digit OTP code sent to {email}</p>
         </div>
 

@@ -179,7 +179,7 @@ const BuyerCart = () => {
   style={{ objectFit: 'cover' }}
 />
                       <div className="flex-grow-1">
-                        <div className="fw-bold text-dark">{item.product?.name}</div>
+                        <div className="fw-bold ">{item.product?.name}</div>
                         <div className="text-muted small">₹{item.product?.effectivePrice || item.product?.price} / {item.product?.unit}</div>
                       </div>
                       <div className="d-flex align-items-center gap-2">
@@ -200,20 +200,20 @@ const BuyerCart = () => {
                     <MapPin size={20} /> Shipping & Delivery Destination
                   </h5>
                   <div className="mb-3">
-                    <label className="form-label text-dark fw-semibold">Street Address</label>
+                    <label className="form-label  fw-semibold">Street Address</label>
                     <input type="text" className="form-control" placeholder="123 Main St" value={street} onChange={(e) => setStreet(e.target.value)} required />
                   </div>
                   <div className="row g-3 mb-4">
                     <div className="col-sm-4">
-                      <label className="form-label text-dark fw-semibold">City</label>
+                      <label className="form-label  fw-semibold">City</label>
                       <input type="text" className="form-control" placeholder="Mumbai" value={city} onChange={(e) => setCity(e.target.value)} required />
                     </div>
                     <div className="col-sm-4">
-                      <label className="form-label text-dark fw-semibold">State</label>
+                      <label className="form-label  fw-semibold">State</label>
                       <input type="text" className="form-control" placeholder="Maharashtra" value={state} onChange={(e) => setState(e.target.value)} required />
                     </div>
                     <div className="col-sm-4">
-                      <label className="form-label text-dark fw-semibold">Postal Code</label>
+                      <label className="form-label  fw-semibold">Postal Code</label>
                       <input type="text" className="form-control" placeholder="400001" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} required />
                     </div>
                   </div>
@@ -224,13 +224,13 @@ const BuyerCart = () => {
                   <div className="d-flex gap-3 mb-4">
                     <div className="form-check">
                       <input className="form-check-input" type="radio" name="payment" id="paymentCod" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} />
-                      <label className="form-check-label text-dark" htmlFor="paymentCod">
+                      <label className="form-check-label " htmlFor="paymentCod">
                         Pay After Delivery (COD)
                       </label>
                     </div>
                     <div className="form-check">
                       <input className="form-check-input" type="radio" name="payment" id="paymentOnline" value="online" checked={paymentMethod === 'online'} onChange={() => setPaymentMethod('online')} />
-                      <label className="form-check-label text-dark" htmlFor="paymentOnline">
+                      <label className="form-check-label " htmlFor="paymentOnline">
                         Pay Online (Razorpay)
                       </label>
                     </div>
@@ -271,7 +271,7 @@ const BuyerCart = () => {
                   </div>
                   <hr />
                   <div className="d-flex justify-content-between mb-4">
-                    <span className="fw-bold text-dark fs-5">Total Cost</span>
+                    <span className="fw-bold  fs-5">Total Cost</span>
                     <span className="fw-bold text-success fs-5">₹{total.toFixed(2)}</span>
                   </div>
                   <div className="bg-success-subtle p-3 rounded-3 text-success text-center small">

@@ -99,20 +99,20 @@ const Profile = () => {
                 </h5>
                 <div className="row g-3 mb-3">
                   <div className="col-sm-6">
-                    <label className="form-label fw-semibold text-dark">First Name</label>
+                    <label className="form-label fw-semibold ">First Name</label>
                     <input type="text" className="form-control" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
                   </div>
                   <div className="col-sm-6">
-                    <label className="form-label fw-semibold text-dark">Last Name</label>
+                    <label className="form-label fw-semibold ">Last Name</label>
                     <input type="text" className="form-control" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
                   </div>
                 </div>
                 <div className="mb-3">
-                  <label className="form-label fw-semibold text-dark">Phone Number</label>
+                  <label className="form-label fw-semibold ">Phone Number</label>
                   <input type="tel" className="form-control" value={phone} onChange={(e) => setPhone(e.target.value)} />
                 </div>
                 <div className="mb-4">
-                  <label className="form-label fw-semibold text-dark">Business Name</label>
+                  <label className="form-label fw-semibold ">Business Name</label>
                   <input type="text" className="form-control" value={businessName} onChange={(e) => setBusinessName(e.target.value)} />
                 </div>
                 <button type="submit" className="btn btn-primary-farm d-flex align-items-center gap-2" disabled={loading}>

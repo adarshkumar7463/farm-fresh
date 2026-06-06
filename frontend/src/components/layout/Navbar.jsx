@@ -107,7 +107,7 @@ const Navbar = () => {
                 </div>
               )}
               <div className="text-start d-none d-md-block">
-                <div className="fw-semibold text-dark leading-none" style={{ fontSize: '14px' }}>{user?.fullName}</div>
+                <div className="fw-semibold  leading-none" style={{ fontSize: '14px' }}>{user?.fullName}</div>
                 <div className="text-muted text-capitalize" style={{ fontSize: '11px' }}>{user?.role}</div>
               </div>
             </button>
